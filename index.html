@@ -1,0 +1,125 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.min.js"></script>
+        <script src="libraries/jszip/jszip.min.js"></script>
+        <script src="libraries/filesaver/FileSaver.min.js"></script>
+        <script src="sketch.js"></script>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <h1>osu! Hitburst Animator</h1>
+        <h5>by Vis Major</h2>
+        <div id="controls">
+            <div class="left">
+                <h4>Modify base settings</h4>
+                <div class="settingcontainer">
+                    <p>Choose a hitburst image:</p>
+                    <div id="inputTarget"></div>
+                </div>
+                <div class="settingcontainer">
+                    <p>Hitburst Width:</p>
+                    <input type="number" value="80" id="hbWidth" onchange="HBSettings.changeWidth(parseInt(this.value))">
+                </div>
+                <div class="settingcontainer">
+                    <p>Hitburst Height:</p>
+                    <input type="number" value="80" id="hbHeight" onchange="HBSettings.changeHeight(parseInt(this.value))">
+                </div>
+                <div class="settingcontainer">
+                    <p>Hitburst X Position:</p>
+                    <input type="number" value="40" id="xPos" onchange="HBSettings.changeX(parseInt(this.value))">
+                </div>
+                <div class="settingcontainer">
+                    <p>Hitburst Y Position:</p>
+                    <input type="number" value="40" id="yPos" onchange="HBSettings.changeY(parseInt(this.value))">
+                </div>
+                <div class="settingcontainer">
+                    <p>Frame Count:</p>
+                    <input type="number" value="70" id="frameCount" onchange="HBSettings.changeFrameCount(parseInt(this.value))">
+                </div>
+            </div>
+            <div class="right">
+                <h4>Animations</h4>
+                <div class="settingcontainer">
+                    <p>Shrink:</p>
+                    <input type="checkbox" id="shrinkCheckbox" onchange="HBSettings.toggleShrink(this.checked)" checked>
+                    <p>Shrink delay:</p>
+                    <input type="number" id="shrinkDelay" value="0" onchange="HBSettings.changeShrinkDelay(parseInt(this.value))">
+                </div>
+                <div class="settingcontainer">
+                    <p>Drop:</p>
+                    <input type="checkbox" id="dropCheckbox" onchange="HBSettings.toggleDrop(this.checked)">
+                    <p>Drop delay:</p>
+                    <input type="number" id="dropDelay" value="0" onchange="HBSettings.changeDropDelay(parseInt(this.value))">
+                    <p>Drop amount:</p>
+                    <input type="number" id="dropAmount" value="30" onchange="HBSettings.changeDropAmount(parseInt(this.value))">
+                </div>
+                <div class="settingcontainer">
+                    <p>Blur:</p>
+                    <input type="checkbox" id="blurCheckbox" onchange="HBSettings.toggleBlur(this.checked)">
+                    <p>Blur delay:</p>
+                    <input type="number" value="0" id="blurDelay" onchange="HBSettings.changeBlurDelay(parseInt(this.value))">
+                    <p>Blur radius:</p>
+                    <input type="number" value="20" id="blurRadius" onchange="HBSettings.changeBlurRadius(parseInt(this.value))">
+                </div>
+                <div class="settingcontainer">
+                    <p>Fade:</p>
+                    <input type="checkbox" id="fadeCheckbox" onchange="HBSettings.toggleFade(this.checked)">
+                    <p>(note osu! will apply a fade effect starting somewhere around frame 30 that stacks with this)</p>
+                    <p>Fade delay:</p>
+                    <input type="number" value="0" id="fadeDelay" onchange="HBSettings.changeFadeDelay(parseInt(this.value))">
+                </div>
+                <div class="settingcontainer">
+                    <p>Rotate:</p>
+                    <input type="checkbox" id="rotateCheckbox" onchange="HBSettings.toggleRotate(this.checked)">
+                    <p>Rotate delay:</p>
+                    <input type="number" value="0" id="rotateDelay" onchange="HBSettings.changeRotateDelay(parseInt(this.value))">
+                    <p>Rotate max angle (degrees):</p>
+                    <input type="number" value="360" id="rotateAngle" onchange="HBSettings.changeRotateAngle(parseInt(this.value))">
+                </div>
+            </div>
+        </div>
+        <div id="canvasDiv">
+            <h3>Animation Preview</h3>
+            <p>Note the preview animation rendered here may be choppy but the exported files will not be.</p>
+
+        </div>
+        <div class="settingcontainer">
+            <p>Export as @2x files:</p>
+            <input style="float:left" type="checkbox" name="export@2x" id="2xoption" onchange="HBSettings.toggle2x(this.checked)" checked>
+            <p>note: files will be the same size. This only adds @2x to the filenames.</p>
+        </div>
+        <div class="settingcontainer">
+            <p>Generate Zip file:</p>
+            <select name="hirburst" onchange="HBSettings.changeHitburst(this.value)">
+                <option value="0">miss</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="100k">100k</option>
+                <option value="300">300</option>
+                <option value="300k">300k</option>
+                <option value="300g">300g</option>
+            </select>
+            <button style="float:left" onclick="generatePngs()">Generate!</button>
+        </div>
+        <div class="description">
+            <h3>What is this?</h3>
+            <p>This is a tool for creating simple hitburst animations (the 300, 100, 50, miss, etc that pop up when you click on a circle).</p>
+            <h3>How do I use this?</h3>
+            <p>Choose a hitburst image. Preferably a PNG file with a transparent background that is already the size you want your hitburst to be.</p>
+            <h4>Settings:</h4>
+            <p>Hitburst width and height are the total height and width of the resulting images. Make them large enough to fit the animation, but not too large.</p>
+            <p>The position settings are where the center of the hitburst image you have chosen will start.</p>
+            <P>Frame count controls how long the animation lasts. These play at 60fps regardless of skin.ini settings. 
+                osu! standard hitbursts last about 65-70 frames before they are completely faded out.</P>
+            <p>I've heard mania hitbursts are much shorter (10 frames?) but I'm not familiar with mania.</p>
+            <h4>Animations:</h4>
+            <p>First checkbox controls whether that animation is applied. Delay controls how many frames until that animation starts.</p>
+            <p>------</p>
+            <p>Once you are happy with your animation, choose which hitburst you are generating from the dropdown menu next to the generate button and click generate.
+                You will be given a .zip file with your hitburst animation which you can unzip and place in your skin's folder.
+            </p>
+        </div>
+
+    </body>
+</html>
